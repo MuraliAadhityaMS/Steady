@@ -196,6 +196,7 @@ h2 { font-size: 1.05rem; letter-spacing: -0.025em; }
 .habit-list { display: grid; gap: 12px; }
 .habit-card { position: relative; width: 100%; padding: 18px 20px 14px; overflow: visible; border-color: color-mix(in srgb, var(--border), var(--accent-border) 30%); background: linear-gradient(145deg, color-mix(in srgb, var(--surface), var(--accent-soft) 28%), color-mix(in srgb, var(--surface), var(--accent-soft) 8%)); transition: max-width 180ms ease; }
 .habit-card:has(.habit-menu[open]) { z-index: 30; }
+.habit-card.range-12-card { max-width: 520px; margin-inline: auto; }
 .habit-card.range-26-card { max-width: 820px; margin-inline: auto; }
 .habit-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
 .habit-identity { display: flex; align-items: center; min-width: 0; gap: 12px; }
@@ -257,6 +258,7 @@ h2 { font-size: 1.05rem; letter-spacing: -0.025em; }
 
 .graph-scroll { overflow-x: auto; padding-bottom: 5px; scrollbar-width: thin; scrollbar-color: #d6d3d1 transparent; }
 .graph { width: 100%; min-width: var(--graph-min-width); }
+.graph.range-12 { --cell-size: 12px; --graph-min-width: 420px; }
 .graph.range-26 { --cell-size: 12px; --graph-min-width: 620px; }
 .graph.range-52 { --cell-size: 12px; --graph-min-width: 880px; }
 .month-row {

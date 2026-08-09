@@ -87,7 +87,7 @@ function normalizeHabit(raw, index = 0) {
 function normalizeState(raw) {
   if (!raw || !Array.isArray(raw.habits)) throw new Error("Backup does not contain a habits list.");
   return {
-    version: 3, range: raw.range === 26 ? 26 : 52, theme: raw.theme === "dark" ? "dark" : "light",
+    version: 3, range: [12, 26, 52].includes(Number(raw.range)) ? Number(raw.range) : 52, theme: raw.theme === "dark" ? "dark" : "light",
     view: "today", habits: raw.habits.map(normalizeHabit),
     archived: Array.isArray(raw.archived) ? raw.archived.map(normalizeHabit) : [],
   };
@@ -399,7 +399,7 @@ function toggleCheckIn(habitId, key) {
   showToast(previous ? "Check-in removed" : "Habit completed", { undo: () => { const target = state.habits.find((item) => item.id === habitId); if (!target) return; if (previous) target.completions[key] = previous; else delete target.completions[key]; saveState(); render(); showToast("Check-in restored"); } });
 }
 
-function exportBackup(filenamePrefix = "steady-v2-5-backup") {
+function exportBackup(filenamePrefix = "steady-v2-6-backup") {
   const blob = new Blob([JSON.stringify({ ...state, exportedAt: new Date().toISOString() }, null, 2)], { type: "application/json" }); const url = URL.createObjectURL(blob); const link = document.createElement("a");
   link.href = url; link.download = `${filenamePrefix}-${dateKey(new Date())}.json`; document.body.append(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 0);
 }
@@ -482,7 +482,7 @@ function drawHabitPngCard(context, habit, x, y, width) {
   drawPngText(context, `${firstDate.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })} – ${lastDate.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}`, x + 24, y + PNG_CARD_HEIGHT - 18, { size: 10, color: base.muted });
 }
 
-function pngLayoutWidth() { return state.range === 26 ? 720 : 980; }
+function pngLayoutWidth() { return state.range === 12 ? 520 : state.range === 26 ? 720 : 980; }
 
 function renderHabitPng(habit) {
   const width = pngLayoutWidth(); const height = PNG_CARD_HEIGHT + 48; const { canvas, context } = createPngCanvas(width, height); const base = PNG_BASE_PALETTES[state.theme === "dark" ? "dark" : "light"];
@@ -523,7 +523,7 @@ async function exportAllHabitPngs() {
 async function importBackup(file) {
   if (!file) return; if (file.size > 2_000_000) throw new Error("Backup is too large.");
   const imported = normalizeState(JSON.parse(await file.text())); const previous = cloneState();
-  exportBackup("steady-v2-5-pre-import"); state = imported; saveState(); render();
+  exportBackup("steady-v2-6-pre-import"); state = imported; saveState(); render();
   showToast("Backup imported; previous data was exported", { undo: () => { state = previous; saveState(); render(); showToast("Import undone"); } });
 }
 
@@ -538,6 +538,7 @@ function runSelfTests() {
   test("Percentage rounds normally", calculatePercent(2, 3) === 67);
   test("Percentage cannot exceed 100", calculatePercent(9, 3) === 100);
   test("New accounts start without sample habits", defaultState().habits.length === 0);
+  test("Twelve-week history range is retained", normalizeState({ habits: [], range: 12 }).range === 12);
   const failed = checks.filter((check) => !check.passed); console.table(checks);
   showToast(failed.length ? `${failed.length} of ${checks.length} checks failed` : `All ${checks.length} calculation checks passed`);
   return checks;

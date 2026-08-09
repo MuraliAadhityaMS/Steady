@@ -1,6 +1,6 @@
 # Steady
 
-Steady `v2.5` is a calm, visual habit tracker designed to help you build consistency one day at a time. Each habit has a contribution-style history grid, making it easy to see your progress, recognize patterns, and keep a streak going without unnecessary clutter.
+Steady `v2.6` is a calm, visual habit tracker designed to help you build consistency one day at a time. Each habit has a contribution-style history grid, making it easy to see your progress, recognize patterns, and keep a streak going without unnecessary clutter.
 
 ## Getting started
 
@@ -25,7 +25,7 @@ The Today page shows the habits scheduled for the current day. Each square displ
 
 The History page presents each habit as a Git-style activity grid. Filled squares represent completed days, while empty squares show days without a check-in.
 
-You can switch between the last 26 weeks and the full 52-week history. The summary cards show your recent completion rate, current streak, best streak, and total habits finished today.
+You can switch between the last 12 weeks, 26 weeks, and the full 52-week history. The summary cards show your recent completion rate, current streak, best streak, and total habits finished today.
 
 Select any available day in a grid to add or remove a past check-in.
 
