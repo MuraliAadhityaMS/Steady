@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#fafaf9" />
+    <meta
+      name="description"
+      content="Steady is a private, synchronized habit tracker with contribution-style progress grids."
+    />
+    <title>Steady</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-auth-state="loading">
+    <section class="auth-shell" id="auth-shell" aria-labelledby="auth-title">
+      <article class="auth-card card">
+        <div>
+          <p class="eyebrow">Your private practice</p>
+          <h1 id="auth-title">Steady</h1>
+          <p class="auth-intro">Sign in to keep your habits private and synchronized across your devices.</p>
+        </div>
+        <div class="auth-tabs" role="tablist" aria-label="Account action">
+          <button class="auth-tab active" id="sign-in-tab" type="button" role="tab" aria-selected="true">Sign in</button>
+          <button class="auth-tab" id="sign-up-tab" type="button" role="tab" aria-selected="false">Create account</button>
+        </div>
+        <form id="auth-form" class="auth-form">
+          <div class="form-field">
+            <label for="auth-email">Email</label>
+            <input id="auth-email" name="email" type="email" autocomplete="email" required />
+          </div>
+          <div class="form-field">
+            <label for="auth-password">Password</label>
+            <input id="auth-password" name="password" type="password" autocomplete="current-password" minlength="8" required />
+          </div>
+          <button class="button button-primary auth-submit" id="auth-submit" type="submit">Sign in</button>
+          <p class="auth-message" id="auth-message" role="status" aria-live="polite"></p>
+        </form>
+        <p class="auth-setup" id="auth-setup" hidden>
+          Supabase is not configured. Follow the setup steps in the project README.
+        </p>
+      </article>
+    </section>
+
+    <main class="page-shell">
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">Your practice</p>
+          <div class="title-row"><h1>Habits</h1></div>
+          <p class="subtitle">Small actions, repeated.</p>
+        </div>
+
+        <div class="header-actions">
+          <div class="account-menu">
+            <span id="account-email"></span>
+            <button class="text-button" id="sign-out-button" type="button">Sign out</button>
+          </div>
+          <button class="button button-secondary theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark theme">
+            <span class="theme-icon" aria-hidden="true">☾</span>
+          </button>
+          <button class="button button-primary" id="new-habit-button" type="button">
+            <span aria-hidden="true">＋</span> New habit
+          </button>
+        </div>
+      </header>
+
+      <nav class="view-switcher" aria-label="Tracker view">
+        <button class="view-button active" type="button" data-view="today" aria-pressed="true">Today</button>
+        <button class="view-button" type="button" data-view="history" aria-pressed="false">History</button>
+      </nav>
+
+      <section id="today-view" class="today-view view-panel" aria-label="Today's habits">
+        <div class="today-heading">
+          <div><p class="eyebrow">Focus</p><h2>Today</h2><p id="today-date" class="today-date"></p></div>
+          <p id="today-progress" class="today-progress"></p>
+        </div>
+        <div id="today-list" class="today-list"></div>
+      </section>
+
+      <section id="history-view" class="dashboard-grid view-panel" aria-label="Habit dashboard" hidden>
+        <div class="history-header-grid">
+          <section class="summary-grid" id="summary-grid" aria-label="Summary"></section>
+          <article class="history-toolbar card">
+            <div class="summary-icon" aria-hidden="true">▦</div>
+            <div class="history-range-content">
+              <p class="summary-label">History duration</p>
+              <label class="select-wrap">
+                <span class="sr-only">History range</span>
+                <select id="range-select" aria-label="History range">
+                  <option value="26">Last 26 weeks</option>
+                  <option value="52" selected>Last year</option>
+                </select>
+              </label>
+            </div>
+          </article>
+        </div>
+        <div class="dashboard-main">
+          <section class="habit-list" id="habit-list" aria-label="Your habits"></section>
+        </div>
+      </section>
+
+      <footer class="page-footer">
+        <div class="footer-meta">
+          <p id="data-file-status">Secure cloud data: connecting…</p>
+          <span class="footer-version" aria-label="Steady version 2.3">v2.3</span>
+          <a
+            class="developer-link"
+            href="https://github.com/MuraliAadhityaMS"
+            target="_blank"
+            rel="me noopener noreferrer"
+            aria-label="Developer: Aadhi on GitHub"
+            title="Aadhi on GitHub"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 1.5a10.5 10.5 0 0 0-3.32 20.46c.53.1.72-.23.72-.51v-2.04c-2.95.64-3.57-1.25-3.57-1.25-.48-1.23-1.18-1.56-1.18-1.56-.96-.66.08-.65.08-.65 1.06.08 1.62 1.09 1.62 1.09.95 1.61 2.48 1.15 3.08.88.1-.69.37-1.15.67-1.42-2.35-.27-4.83-1.18-4.83-5.2 0-1.15.41-2.09 1.08-2.83-.11-.27-.47-1.34.11-2.79 0 0 .88-.28 2.89 1.08A9.99 9.99 0 0 1 12 6.4c.9 0 1.79.12 2.63.36 2.01-1.36 2.89-1.08 2.89-1.08.58 1.45.22 2.52.11 2.79.67.74 1.08 1.68 1.08 2.83 0 4.04-2.48 4.93-4.84 5.2.38.33.72.98.72 1.98v2.97c0 .28.19.62.73.51A10.5 10.5 0 0 0 12 1.5Z" />
+            </svg>
+          </a>
+        </div>
+        <div class="footer-actions">
+          <button class="text-button" id="archived-button" type="button" hidden>Archived habits</button>
+          <button class="text-button" id="export-button" type="button">Export backup</button>
+          <button class="text-button" id="import-button" type="button">Import backup</button>
+          <button class="text-button" id="export-all-png-button" type="button">Export all grids as PNG</button>
+          <button class="text-button" id="self-test-button" type="button">Run calculation checks</button>
+          <input class="sr-only" id="import-input" type="file" accept="application/json,.json" />
+          <button class="text-button" id="reset-button" type="button">Reset demo data</button>
+        </div>
+      </footer>
+    </main>
+
+    <dialog id="habit-dialog" class="dialog">
+      <form id="habit-form" method="dialog">
+        <div class="dialog-header">
+          <div>
+            <p class="eyebrow" id="habit-dialog-eyebrow">Create a practice</p>
+            <h2 id="habit-dialog-title">New habit</h2>
+          </div>
+          <button class="icon-button" id="close-dialog" type="button" aria-label="Close dialog">×</button>
+        </div>
+
+        <div class="form-field">
+          <label for="habit-name">Habit name</label>
+          <input id="habit-name" name="name" maxlength="42" placeholder="e.g. Meditate" required />
+        </div>
+
+        <div class="form-field">
+          <label for="habit-frequency">Frequency</label>
+          <select id="habit-frequency" name="frequency">
+            <option value="Daily">Daily</option>
+            <option value="5× per week">5× per week</option>
+            <option value="3× per week">3× per week</option>
+            <option value="Weekdays">Weekdays</option>
+            <option value="Custom days">Custom days</option>
+            <option value="Flexible weekly target">Flexible weekly target</option>
+          </select>
+        </div>
+
+        <fieldset class="form-field schedule-field" id="custom-days-field" hidden>
+          <legend>Scheduled days</legend>
+          <div class="day-options">
+            <label><input type="checkbox" name="scheduleDay" value="1" /><span>Mon</span></label>
+            <label><input type="checkbox" name="scheduleDay" value="2" /><span>Tue</span></label>
+            <label><input type="checkbox" name="scheduleDay" value="3" /><span>Wed</span></label>
+            <label><input type="checkbox" name="scheduleDay" value="4" /><span>Thu</span></label>
+            <label><input type="checkbox" name="scheduleDay" value="5" /><span>Fri</span></label>
+            <label><input type="checkbox" name="scheduleDay" value="6" /><span>Sat</span></label>
+            <label><input type="checkbox" name="scheduleDay" value="0" /><span>Sun</span></label>
+          </div>
+        </fieldset>
+
+        <div class="form-field" id="weekly-target-field" hidden>
+          <label for="weekly-target">Completions per week</label>
+          <input id="weekly-target" name="weeklyTarget" type="number" min="1" max="7" value="3" />
+          <p class="field-help">Complete this habit on any days before the week ends.</p>
+        </div>
+
+        <fieldset class="form-field color-field">
+          <legend>Color</legend>
+          <div class="color-options">
+            <label><input type="radio" name="color" value="emerald" checked /><span class="color emerald"></span><span class="sr-only">Emerald</span></label>
+            <label><input type="radio" name="color" value="indigo" /><span class="color indigo"></span><span class="sr-only">Indigo</span></label>
+            <label><input type="radio" name="color" value="amber" /><span class="color amber"></span><span class="sr-only">Amber</span></label>
+            <label><input type="radio" name="color" value="rose" /><span class="color rose"></span><span class="sr-only">Rose</span></label>
+            <label><input type="radio" name="color" value="teal" /><span class="color teal"></span><span class="sr-only">Teal</span></label>
+            <label><input type="radio" name="color" value="sky" /><span class="color sky"></span><span class="sr-only">Sky</span></label>
+            <label><input type="radio" name="color" value="violet" /><span class="color violet"></span><span class="sr-only">Violet</span></label>
+            <label><input type="radio" name="color" value="pink" /><span class="color pink"></span><span class="sr-only">Pink</span></label>
+          </div>
+        </fieldset>
+
+        <div class="dialog-actions">
+          <button class="button button-secondary" id="cancel-dialog" type="button">Cancel</button>
+          <button class="button button-primary" id="habit-submit-button" type="submit">Create habit</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="details-dialog" class="dialog details-dialog">
+      <div class="details-content">
+        <div class="dialog-header">
+          <div><p class="eyebrow">Habit details</p><h2 id="details-title"></h2></div>
+          <button class="icon-button" id="close-details-dialog" type="button" aria-label="Close habit details">×</button>
+        </div>
+        <div id="details-stats" class="details-stats"></div>
+        <nav class="details-tabs" aria-label="Habit note view">
+          <button class="details-tab active" type="button" data-details-section="add" aria-pressed="true">Add note</button>
+          <button class="details-tab" type="button" data-details-section="view" aria-pressed="false">View notes</button>
+        </nav>
+        <section id="add-note-panel" class="details-panel">
+          <form id="note-form" class="note-form">
+            <div class="form-field">
+              <label for="note-date">Check-in date</label>
+              <input id="note-date" name="noteDate" type="date" required />
+            </div>
+            <div class="form-field">
+              <label for="note-text">Note</label>
+              <textarea id="note-text" name="noteText" maxlength="280" placeholder="What helped, or what got in the way?"></textarea>
+            </div>
+            <button class="button button-primary" type="submit">Save note</button>
+          </form>
+        </section>
+        <section id="view-notes-panel" class="details-panel" hidden>
+          <div class="recent-notes"><h3>Recent notes</h3><div id="notes-list"></div></div>
+        </section>
+      </div>
+    </dialog>
+
+    <dialog id="archive-dialog" class="dialog archive-dialog">
+      <div class="archive-content">
+        <div class="dialog-header">
+          <div>
+            <p class="eyebrow">Out of rotation</p>
+            <h2>Archived habits</h2>
+          </div>
+          <button class="icon-button" id="close-archive-dialog" type="button" aria-label="Close archived habits">×</button>
+        </div>
+        <div id="archive-list" class="archive-list"></div>
+      </div>
+    </dialog>
+
+    <div id="toast" class="toast" role="status" aria-live="polite">
+      <span id="toast-message"></span>
+      <button id="toast-undo" type="button" hidden>Undo</button>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+    <script src="supabase-config.js" defer></script>
+    <script src="app.js" defer></script>
+  </body>
+</html>
