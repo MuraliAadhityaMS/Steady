@@ -54,25 +54,10 @@ function mondayOf(date) { const copy = atNoon(date); return addDays(copy, -((cop
 function cloneState(value = state) { return JSON.parse(JSON.stringify(value)); }
 function calculatePercent(completed, scheduled) { return scheduled ? Math.min(100, Math.round((completed / scheduled) * 100)) : 0; }
 
-function seededCompletions(seed, density) {
-  const result = {};
-  const today = atNoon(new Date());
-  for (let daysAgo = 0; daysAgo < 370; daysAgo += 1) {
-    const date = addDays(today, -daysAgo);
-    const wave = Math.sin((daysAgo + seed * 13) * 1.71) + Math.cos((daysAgo + seed) * 0.43);
-    if ((wave + 2) / 4 < density && ((daysAgo + seed * 7) % 17 !== 0 || daysAgo < seed + 3)) result[dateKey(date)] = 1;
-  }
-  return result;
-}
-
 function defaultState() {
   return {
     version: 3, range: 52, theme: "light", view: "today", archived: [],
-    habits: [
-      { id: crypto.randomUUID(), name: "Morning walk", frequency: "5× per week", color: "emerald", icon: "↗", completions: seededCompletions(1, 0.83), notes: {} },
-      { id: crypto.randomUUID(), name: "Read 20 minutes", frequency: "Daily", color: "indigo", icon: "▣", completions: seededCompletions(4, 0.72), notes: {} },
-      { id: crypto.randomUUID(), name: "No added sugar", frequency: "Daily", color: "amber", icon: "◇", completions: seededCompletions(7, 0.9), notes: {} },
-    ],
+    habits: [],
   };
 }
 
@@ -316,7 +301,7 @@ function renderToday() {
     const complete = flexible ? weekCount >= habit.weeklyTarget : Boolean(habit.completions[key]); if (complete) completedCount += 1;
     const detail = flexible ? `${weekCount}/${habit.weeklyTarget} completed this week` : frequencyDescription(habit);
     return `<article class="today-card theme-${habit.color}"><div class="today-card-main"><div class="habit-icon" aria-hidden="true">${escapeHtml(habit.icon)}</div><div><strong>${escapeHtml(habit.name)}</strong><p>${escapeHtml(detail)}</p></div></div><button class="today-toggle${complete ? " completed" : ""}" type="button" data-today-toggle="${habit.id}" ${flexible && complete && !habit.completions[key] ? "disabled" : ""}>${complete ? flexible ? "Goal met" : "Completed" : "Mark done"}</button></article>`;
-  }).join("") || `<p class="today-empty">Nothing is scheduled today. Enjoy the space.</p>`;
+  }).join("") || `<p class="today-empty">${state.habits.length ? "Nothing is scheduled today. Enjoy the space." : "No habits yet. Select New habit to create your first practice."}</p>`;
   elements.todayProgress.innerHTML = `<strong>${completedCount}/${due.length}</strong><span>completed</span>`;
 }
 
@@ -410,7 +395,7 @@ function toggleCheckIn(habitId, key) {
   showToast(previous ? "Check-in removed" : "Habit completed", { undo: () => { const target = state.habits.find((item) => item.id === habitId); if (!target) return; if (previous) target.completions[key] = previous; else delete target.completions[key]; saveState(); render(); showToast("Check-in restored"); } });
 }
 
-function exportBackup(filenamePrefix = "steady-v2-3-backup") {
+function exportBackup(filenamePrefix = "steady-v2-4-backup") {
   const blob = new Blob([JSON.stringify({ ...state, exportedAt: new Date().toISOString() }, null, 2)], { type: "application/json" }); const url = URL.createObjectURL(blob); const link = document.createElement("a");
   link.href = url; link.download = `${filenamePrefix}-${dateKey(new Date())}.json`; document.body.append(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 0);
 }
@@ -534,7 +519,7 @@ async function exportAllHabitPngs() {
 async function importBackup(file) {
   if (!file) return; if (file.size > 2_000_000) throw new Error("Backup is too large.");
   const imported = normalizeState(JSON.parse(await file.text())); const previous = cloneState();
-  exportBackup("steady-v2-3-pre-import"); state = imported; saveState(); render();
+  exportBackup("steady-v2-4-pre-import"); state = imported; saveState(); render();
   showToast("Backup imported; previous data was exported", { undo: () => { state = previous; saveState(); render(); showToast("Import undone"); } });
 }
 
@@ -548,6 +533,7 @@ function runSelfTests() {
   test("Custom schedule uses selected days", scheduledForDate({ frequency: "Custom days", scheduleDays: [1, 4] }, monday) && !scheduledForDate({ frequency: "Custom days", scheduleDays: [4] }, monday));
   test("Percentage rounds normally", calculatePercent(2, 3) === 67);
   test("Percentage cannot exceed 100", calculatePercent(9, 3) === 100);
+  test("New accounts start without sample habits", defaultState().habits.length === 0);
   const failed = checks.filter((check) => !check.passed); console.table(checks);
   showToast(failed.length ? `${failed.length} of ${checks.length} checks failed` : `All ${checks.length} calculation checks passed`);
   return checks;
@@ -675,7 +661,7 @@ document.querySelector("#import-button").addEventListener("click", () => element
 document.querySelector("#export-all-png-button").addEventListener("click", () => { exportAllHabitPngs().catch((error) => { console.error("Could not export all habit PNGs", error); showToast("Could not export the habit grids"); }); });
 elements.importInput.addEventListener("change", async () => { try { await importBackup(elements.importInput.files[0]); } catch (error) { showToast(error instanceof SyntaxError ? "That file is not valid JSON" : error.message || "Could not import backup"); } finally { elements.importInput.value = ""; } });
 document.querySelector("#self-test-button").addEventListener("click", runSelfTests);
-document.querySelector("#reset-button").addEventListener("click", () => { if (!window.confirm("Reset Steady and restore its demo data?")) return; const previous = cloneState(); state = defaultState(); saveState(); render(); showToast("Demo data restored", { undo: () => { state = previous; saveState(); render(); showToast("Reset undone"); } }); });
+document.querySelector("#reset-button").addEventListener("click", () => { if (!window.confirm("Clear every active and archived habit, completion, and note from this account?")) return; const previous = cloneState(); state = defaultState(); saveState(); render(); showToast("All account data cleared", { undo: () => { state = previous; saveState(); render(); showToast("Clear undone"); } }); });
 
 elements.signInTab.addEventListener("click", () => setAuthMode("sign-in"));
 elements.signUpTab.addEventListener("click", () => setAuthMode("sign-up"));

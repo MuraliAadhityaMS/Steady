@@ -1,6 +1,6 @@
 # Steady
 
-Steady is a calm, visual habit tracker designed to help you build consistency one day at a time. Each habit has a contribution-style history grid, making it easy to see your progress, recognize patterns, and keep a streak going without unnecessary clutter.
+Steady `v2.4` is a calm, visual habit tracker designed to help you build consistency one day at a time. Each habit has a contribution-style history grid, making it easy to see your progress, recognize patterns, and keep a streak going without unnecessary clutter.
 
 ## Getting started
 
@@ -10,7 +10,7 @@ Steady is a calm, visual habit tracker designed to help you build consistency on
 4. Select **New habit** and give your habit a name, schedule, and color.
 5. Open the **Today** page whenever you complete a habit and select **Mark done**.
 
-Your account keeps its own habits and history. You can sign in from another supported browser or device to access the same synchronized data.
+Every new account starts with a clean slate, so you can build a habit list that is entirely your own. Your account keeps its habits and history private, and you can sign in from another supported browser or device to access the same synchronized data.
 
 ## Today
 
