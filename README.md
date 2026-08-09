@@ -1,6 +1,6 @@
 # Steady
 
-Steady `v2.4` is a calm, visual habit tracker designed to help you build consistency one day at a time. Each habit has a contribution-style history grid, making it easy to see your progress, recognize patterns, and keep a streak going without unnecessary clutter.
+Steady `v2.5` is a calm, visual habit tracker designed to help you build consistency one day at a time. Each habit has a contribution-style history grid, making it easy to see your progress, recognize patterns, and keep a streak going without unnecessary clutter.
 
 ## Getting started
 
@@ -19,6 +19,7 @@ The Today page shows the habits scheduled for the current day. Each square displ
 - Select **Mark done** when you complete a habit.
 - Select **Completed** again if you need to undo the check-in.
 - The heading shows how many of today's scheduled habits are finished.
+- Use a tile's menu to add or view notes, edit the habit, or archive it.
 
 ## History
 
@@ -30,20 +31,19 @@ Select any available day in a grid to add or remove a past check-in.
 
 ## Managing habits
 
-Use the menu on a habit card to:
+Use the menu on a History card to:
 
-- View details and notes
+- Add a note or open the saved notes list
 - Edit its name, schedule, or color
 - Export its grid as a PNG image
 - Change its position in the list
 - Archive a habit without losing its history
-- Permanently delete it
 
-Archived habits can be restored from the **Archived habits** option in the footer.
+Archived habits can be restored or permanently deleted from the **Archived habits** option in the footer. Active habits must be archived before they can be permanently deleted.
 
 ## Notes
 
-Open a habit's **Details & notes** page to record a short note for a particular date. Notes can capture what helped, what made the habit difficult, or anything you want to remember when reviewing your progress.
+Select **Add note** to record a short note for a particular date, or **View Notes** to open the saved-notes list directly. Notes can capture what helped, what made the habit difficult, or anything you want to remember when reviewing your progress.
 
 ## Backups and exports
 

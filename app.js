@@ -280,7 +280,7 @@ function renderHabit(habit, index) {
   return `<article class="habit-card card theme-${habit.color} range-${state.range}-card">
     <header class="habit-header"><div class="habit-identity"><div class="habit-icon" aria-hidden="true">${escapeHtml(habit.icon)}</div><button class="habit-name-button" type="button" data-details-habit="${habit.id}"><span class="habit-name">${escapeHtml(habit.name)}</span><span class="habit-frequency">${escapeHtml(frequencyDescription(habit))}</span></button></div>
     <div class="habit-actions"><div class="habit-stats"><div class="habit-stat"><strong>${stats.current}</strong><span>${stats.unit} streak</span></div><div class="habit-stat"><strong>${completionRate(habit)}%</strong><span>completion</span></div></div>
-    <details class="habit-menu"><summary class="icon-button" aria-label="Manage ${escapeHtml(habit.name)}">•••</summary><div class="menu-popover"><button type="button" data-action="details" data-habit="${habit.id}">Details & notes</button><button type="button" data-action="edit" data-habit="${habit.id}">Edit</button><button type="button" data-action="export-png" data-habit="${habit.id}">Export grid as PNG</button><button type="button" data-action="move-up" data-habit="${habit.id}" ${index === 0 ? "disabled" : ""}>Move up</button><button type="button" data-action="move-down" data-habit="${habit.id}" ${index === state.habits.length - 1 ? "disabled" : ""}>Move down</button><button type="button" data-action="archive" data-habit="${habit.id}">Archive</button><button class="danger-action" type="button" data-action="delete" data-habit="${habit.id}">Delete</button></div></details></div></header>
+    <details class="habit-menu"><summary class="icon-button" aria-label="Manage ${escapeHtml(habit.name)}">•••</summary><div class="menu-popover"><button type="button" data-action="add-note" data-habit="${habit.id}">Add note</button><button type="button" data-action="view-notes" data-habit="${habit.id}">View Notes</button><button type="button" data-action="edit" data-habit="${habit.id}">Edit</button><button type="button" data-action="export-png" data-habit="${habit.id}">Export grid as PNG</button><button type="button" data-action="move-up" data-habit="${habit.id}" ${index === 0 ? "disabled" : ""}>Move up</button><button type="button" data-action="move-down" data-habit="${habit.id}" ${index === state.habits.length - 1 ? "disabled" : ""}>Move down</button><button type="button" data-action="archive" data-habit="${habit.id}">Archive</button></div></details></div></header>
     <div class="graph-scroll" aria-label="${escapeHtml(habit.name)} contribution history"><div class="graph range-${state.range}" style="--weeks: ${weeks.length}"><div class="month-row">${monthLabels(weeks)}</div><div class="graph-body"><div class="weekday-labels" aria-hidden="true"><span>Mon</span><span></span><span>Wed</span><span></span><span>Fri</span><span></span><span>Sun</span></div><div class="week-columns">${columns}</div></div></div></div>
   </article>`;
 }
@@ -289,6 +289,10 @@ function renderHabits() {
   elements.habits.innerHTML = state.habits.length ? state.habits.map(renderHabit).join("") : `<div class="empty-state card"><h2>No active habits</h2><p>Add a new habit or restore one from the archive.</p><button class="button button-primary" type="button" data-open-dialog>New habit</button></div>`;
   elements.archiveButton.hidden = !state.archived.length;
   elements.archiveButton.textContent = `Archived habits (${state.archived.length})`;
+}
+
+function renderTodayMenu(habit) {
+  return `<details class="habit-menu today-habit-menu"><summary class="icon-button" aria-label="Manage ${escapeHtml(habit.name)}">•••</summary><div class="menu-popover"><button type="button" data-action="add-note" data-habit="${habit.id}">Add note</button><button type="button" data-action="view-notes" data-habit="${habit.id}">View Notes</button><button type="button" data-action="edit" data-habit="${habit.id}">Edit</button><button type="button" data-action="archive" data-habit="${habit.id}">Archive</button></div></details>`;
 }
 
 function renderToday() {
@@ -300,7 +304,7 @@ function renderToday() {
     const flexible = habit.frequency === "Flexible weekly target"; const weekCount = flexible ? weekCompletionCount(habit, today) : 0;
     const complete = flexible ? weekCount >= habit.weeklyTarget : Boolean(habit.completions[key]); if (complete) completedCount += 1;
     const detail = flexible ? `${weekCount}/${habit.weeklyTarget} completed this week` : frequencyDescription(habit);
-    return `<article class="today-card theme-${habit.color}"><div class="today-card-main"><div class="habit-icon" aria-hidden="true">${escapeHtml(habit.icon)}</div><div><strong>${escapeHtml(habit.name)}</strong><p>${escapeHtml(detail)}</p></div></div><button class="today-toggle${complete ? " completed" : ""}" type="button" data-today-toggle="${habit.id}" ${flexible && complete && !habit.completions[key] ? "disabled" : ""}>${complete ? flexible ? "Goal met" : "Completed" : "Mark done"}</button></article>`;
+    return `<article class="today-card theme-${habit.color}"><div class="today-card-main"><div class="today-card-top"><div class="habit-icon" aria-hidden="true">${escapeHtml(habit.icon)}</div>${renderTodayMenu(habit)}</div><div><strong>${escapeHtml(habit.name)}</strong><p>${escapeHtml(detail)}</p></div></div><button class="today-toggle${complete ? " completed" : ""}" type="button" data-today-toggle="${habit.id}" ${flexible && complete && !habit.completions[key] ? "disabled" : ""}>${complete ? flexible ? "Goal met" : "Completed" : "Mark done"}</button></article>`;
   }).join("") || `<p class="today-empty">${state.habits.length ? "Nothing is scheduled today. Enjoy the space." : "No habits yet. Select New habit to create your first practice."}</p>`;
   elements.todayProgress.innerHTML = `<strong>${completedCount}/${due.length}</strong><span>completed</span>`;
 }
@@ -358,10 +362,10 @@ function openHabitDialog(habit = null) {
   updateScheduleFields(); elements.dialog.showModal(); requestAnimationFrame(() => elements.name.focus());
 }
 
-function openDetails(id) {
+function openDetails(id, section = "add") {
   detailsHabitId = id; const habit = state.habits.find((item) => item.id === id); if (!habit) return;
   elements.noteDate.max = dateKey(new Date()); elements.noteDate.value = dateKey(new Date()); elements.noteText.value = habit.notes[elements.noteDate.value] || "";
-  setDetailsSection("add"); renderDetails(); elements.detailsDialog.showModal();
+  setDetailsSection(section); renderDetails(); elements.detailsDialog.showModal();
 }
 
 function setDetailsSection(section) {
@@ -378,7 +382,7 @@ function moveHabit(id, direction) {
 
 function handleHabitAction(action, id) {
   const index = state.habits.findIndex((habit) => habit.id === id); if (index < 0) return; const habit = state.habits[index];
-  if (action === "details") return openDetails(id); if (action === "edit") return openHabitDialog(habit); if (action === "export-png") { exportHabitPng(habit).catch((error) => { console.error("Could not export habit PNG", error); showToast("Could not export the habit PNG"); }); return; } if (action === "move-up") return moveHabit(id, -1); if (action === "move-down") return moveHabit(id, 1);
+  if (action === "add-note") return openDetails(id, "add"); if (action === "view-notes") return openDetails(id, "view"); if (action === "edit") return openHabitDialog(habit); if (action === "export-png") { exportHabitPng(habit).catch((error) => { console.error("Could not export habit PNG", error); showToast("Could not export the habit PNG"); }); return; } if (action === "move-up") return moveHabit(id, -1); if (action === "move-down") return moveHabit(id, 1);
   if (action === "archive") {
     state.habits.splice(index, 1); state.archived.push({ ...habit, archivedAt: new Date().toISOString() }); saveState(); render();
     showToast(`${habit.name} archived`, { undo: () => { const archivedIndex = state.archived.findIndex((item) => item.id === id); if (archivedIndex >= 0) state.archived.splice(archivedIndex, 1); delete habit.archivedAt; state.habits.splice(index, 0, habit); saveState(); render(); showToast("Archive undone"); } }); return;
@@ -395,7 +399,7 @@ function toggleCheckIn(habitId, key) {
   showToast(previous ? "Check-in removed" : "Habit completed", { undo: () => { const target = state.habits.find((item) => item.id === habitId); if (!target) return; if (previous) target.completions[key] = previous; else delete target.completions[key]; saveState(); render(); showToast("Check-in restored"); } });
 }
 
-function exportBackup(filenamePrefix = "steady-v2-4-backup") {
+function exportBackup(filenamePrefix = "steady-v2-5-backup") {
   const blob = new Blob([JSON.stringify({ ...state, exportedAt: new Date().toISOString() }, null, 2)], { type: "application/json" }); const url = URL.createObjectURL(blob); const link = document.createElement("a");
   link.href = url; link.download = `${filenamePrefix}-${dateKey(new Date())}.json`; document.body.append(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 0);
 }
@@ -519,7 +523,7 @@ async function exportAllHabitPngs() {
 async function importBackup(file) {
   if (!file) return; if (file.size > 2_000_000) throw new Error("Backup is too large.");
   const imported = normalizeState(JSON.parse(await file.text())); const previous = cloneState();
-  exportBackup("steady-v2-4-pre-import"); state = imported; saveState(); render();
+  exportBackup("steady-v2-5-pre-import"); state = imported; saveState(); render();
   showToast("Backup imported; previous data was exported", { undo: () => { state = previous; saveState(); render(); showToast("Import undone"); } });
 }
 
@@ -638,7 +642,12 @@ elements.habits.addEventListener("click", (event) => {
   const action = event.target.closest("[data-action]"); if (action) { action.closest("details")?.removeAttribute("open"); return handleHabitAction(action.dataset.action, action.dataset.habit); }
   const cell = event.target.closest(".day-cell:not(:disabled)"); if (cell) toggleCheckIn(cell.dataset.habit, cell.dataset.date);
 });
-elements.todayList.addEventListener("click", (event) => { const button = event.target.closest("[data-today-toggle]"); if (button) toggleCheckIn(button.dataset.todayToggle, dateKey(new Date())); });
+elements.todayList.addEventListener("click", (event) => {
+  const action = event.target.closest("[data-action]");
+  if (action) { action.closest("details")?.removeAttribute("open"); return handleHabitAction(action.dataset.action, action.dataset.habit); }
+  const button = event.target.closest("[data-today-toggle]");
+  if (button) toggleCheckIn(button.dataset.todayToggle, dateKey(new Date()));
+});
 elements.toastUndo.addEventListener("click", () => { if (!undoAction) return; const action = undoAction; undoAction = null; action(); });
 
 elements.archiveButton.addEventListener("click", () => { renderArchive(); elements.archiveDialog.showModal(); });
